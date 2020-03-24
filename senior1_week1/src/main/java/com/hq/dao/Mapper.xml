@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.dao.GoodsDAO">
+	<select id="list" resultType="map">
+		SELECT
+		goods.*,goods_brand.brand_name,goods_type.type_name
+		FROM
+		goods LEFT JOIN goods_brand ON goods.brand_id=goods_brand.id
+		LEFT JOIN goods_type ON goods.type_id=goods_type.id
+		<where>
+			display=1
+			<if test="mohu1 !=null and mohu1!=''">
+				and goods.goods_name like concat('%',#{mohu1},'%')
+			</if>
+			<if test="price_start !=null and price_start !=0">
+				and
+				goods.goods_money &gt;= #{price_start}
+			</if>
+			<if test="price_end !=null and price_end !=0">
+				and goods.goods_money &lt;= #{price_end}
+			</if>
+			<if test="mohu2 !=null">
+				and goods.brand_id=#{mohu2}
+			</if>
+			<if test="typeId !=null and typeId !=''">
+				and goods.type_id in (${typeId})
+			</if>
+		</where>
+	</select>
+
+	<select id="brandList" resultType="GoodsBrand">
+		select id,brand_name as
+		brandName from goods_brand
+	</select>
+
+	<select id="typeList" resultType="GoodsType">
+		select id,type_name as typeName
+		from goods_type
+	</select>
+
+	<insert id="add">
+		INSERT INTO
+		goods
+			(goods_name,english_name,goods_size,
+				goods_money,goods_number,goods_taglib,goods_pic,brand_id,type_id,display)
+		VALUES
+			(#{goodsName},#{englishName},#{goodsSize},
+				#{goodsMoney},#{goodsNumber},#{goodsTaglib},#{goodsPic},#{goodsBrand.id},#{goodsType.id},1)
+	</insert>
+	
+	<resultMap type="Goods" id="goodsMap">
+		<id column="id" property="id"/>
+		<result column="goods_name" property="goodsName"/>
+		<result column="english_name" property="englishName"/>
+		<result column="goods_size" property="goodsSize"/>
+		<result column="goods_money" property="goodsMoney"/>
+		<result column="goods_number" property="goodsNumber"/>
+		<result column="goods_taglib" property="goodsTaglib"/>
+		<result column="goods_pic" property="goodsPic"/>
+		<result column="brand_id" property="goodsBrand.id"/>
+		<result column="type_id" property="goodsType.id"/>
+	</resultMap>
+	
+	<select id="getGoodsById" resultMap="goodsMap">
+		SELECT * FROM goods WHERE id=#{id}
+	</select>
+	
+	<update id="upd">
+		update goods
+		<set>
+			<if test="goodsName!=null and goodsName!=''">
+				goods_name=#{goodsName},
+			</if>
+			<if test="englishName!=null and englishName!=''">
+				english_name=#{englishName},
+			</if>
+			<if test="goodsSize!=null">
+				goods_size=#{goodsSize},
+			</if>	
+			<if test="goodsMoney!=null and goodsMoney!=''">
+				goods_money=#{goodsMoney},
+			</if>	
+			<if test="goodsNumber!=null and goodsNumber!=''">
+				goods_number=#{goodsNumber},
+			</if>	
+			<if test="goodsTaglib!=null and goodsTaglib!=''">
+				goods_taglib=#{goodsTaglib},
+			</if>	
+			<if test="goodsPic!=null and goodsPic!=''">
+				goods_pic=#{goodsPic},
+			</if>	
+			<if test="goodsBrand.id!=null">
+				brand_id=#{goodsBrand.id},
+			</if>	
+			<if test="goodsType.id!=null">
+				type_id=#{goodsType.id},
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<update id="del">
+		update goods set display= not display where id=#{id}
+	</update>
+	
+	<delete id="dels">
+		update goods set display= not display where id in (${_parameter})
+	</delete>
+</mapper>
