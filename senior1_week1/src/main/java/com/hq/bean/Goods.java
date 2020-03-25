@@ -22,7 +22,7 @@ public class Goods {
     @Valid
     private GoodsType goodsType;
 
-
+     private String abc;
     public Goods() {
         super();
         // TODO Auto-generated constructor stub
